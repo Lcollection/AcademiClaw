@@ -3,7 +3,7 @@
 </p>
 
 <p align="center">
-  This is an educated lobster. You can also call him AC (~~not the AC that rejects your papers~~)
+  This is an educated lobster. You can also call him AC ( <del> not the AC that rejects your papers </del> )
 </p>
 
 <p align="center">
@@ -13,7 +13,7 @@
 
 ## Features
 
-Compared to NanoClaw, we've primarily modified domestic communication, memory system, and academic-specific skills:
+Compared to NanoClaw, we've primarily modified communication with Feishu etc., memory system, and academic-specific skills:
 
 - **Semantic Memory Search** - Hybrid SQLite + LanceDB architecture for intelligent context retrieval
 - **Multi-channel Support** - WhatsApp, Telegram, Slack, Feishu/Lark
@@ -124,7 +124,7 @@ See `.env.example` for all options.
 ```bash
 npm run dev          # Run with hot reload
 npm run build        # Compile TypeScript
-npm test            # Run tests
+npm test             # Run tests
 ```
 
 ### Memory System Tests
