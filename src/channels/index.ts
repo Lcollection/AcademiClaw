@@ -3,10 +3,15 @@
 
 // discord
 
+// feishu
+import './feishu.js';
+
 // gmail
 
 // slack
 
 // telegram
+import './telegram.js';
 
-// whatsapp
+// whatsapp - disabled, not configured
+// import './whatsapp.js';

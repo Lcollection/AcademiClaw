@@ -67,3 +67,12 @@ export const TRIGGER_PATTERN = new RegExp(
 // Uses system timezone by default
 export const TIMEZONE =
   process.env.TZ || Intl.DateTimeFormat().resolvedOptions().timeZone;
+
+// Memory system configuration
+export const MEMORY_ENABLED = process.env.MEMORY_ENABLED === 'true';
+export const MEMORY_MAX_RESULTS = parseInt(process.env.MEMORY_MAX_RESULTS || '20', 10);
+export const MEMORY_MIN_SCORE = parseFloat(process.env.MEMORY_MIN_SCORE || '0.7');
+export const MEMORY_BATCH_SIZE = parseInt(process.env.MEMORY_BATCH_SIZE || '32', 10);
+export const MEMORY_SYNC_ON_WRITE = process.env.MEMORY_SYNC_ON_WRITE !== 'false';
+export const MEMORY_GRACEFUL_DEGRADATION = process.env.MEMORY_GRACEFUL_DEGRADATION !== 'false';
+export const MEMORY_USE_MOCK_EMBEDDINGS = process.env.MEMORY_USE_MOCK_EMBEDDINGS === 'true';

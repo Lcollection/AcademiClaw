@@ -1,44 +1,182 @@
-这是一个上过学的龙虾你也可以叫他为AC（~~当然不是毙你文章的AC~~）
+<p align="center">
+  <img src="assets/cover.svg" alt="AcademiClaw" width="400">
+</p>
 
-![](./assets/cover.svg)
+<p align="center">
+  This is an educated lobster. You can also call him AC (~~not the AC that rejects your papers~~)
+</p>
 
+<p align="center">
+  <a href="README_zh.md">中文</a>&nbsp; • &nbsp;
+  <a href="https://github.com/qwibitai/nanoclaw">NanoClaw</a>&nbsp; • &nbsp;
+</p>
 
-# 这是个什么项目？
+## Features
 
-主要是OpenClaw目前过长冗余的代码和不是那么安全的权限管理，同时目标用户群体主要是面向科研工作者的这么一套claw系统，整个系统在本地部署的时候
+Compared to NanoClaw, we've primarily modified domestic communication, memory system, and academic-specific skills:
 
-同时NanoClaw的设计理念十分打动我，快速理解+安全风险隔离完美的解决我的主要担忧，以及更少的进程开销让我十分显想要尝试这个项目；
+- **Semantic Memory Search** - Hybrid SQLite + LanceDB architecture for intelligent context retrieval
+- **Multi-channel Support** - WhatsApp, Telegram, Slack, Feishu/Lark
+- **Agent Groups** - Multi-agent collaboration for complex tasks
+- **Scheduled Tasks** - Automated research summaries and periodic jobs
+- **Container Isolation** - Secure sandboxed execution per group
+- **Academic Integration** - Optimized for research workflows
 
-因此我们将NanoClaw作为基础模型架构
-
-# 快速开始
+## Quick Start
 
 ```bash
-git clone https://github.com/lcollection/nanoclaw.git
-cd nanoclaw
-calude
+git clone https://github.com//academiclaw.git
+cd academiclaw
+claude
 ```
 
-然后运行 `/setup`。Claude Code 会处理一切：依赖安装、身份验证、容器设置、服务配置
+### Initial Setup
 
-> 注意：**注意：** 以 `/` 开头的命令（如 `/setup`、`/add-whatsapp`）是 [Claude Code 技能](https://code.claude.com/docs/en/skills)。请在 `claude` CLI 提示符中输入，而非在普通终端中。
-> 
+Run `/setup` in Claude Code CLI to configure:
+- Dependencies and containers
+- Message channels (WhatsApp, Telegram, etc.)
+- Memory system (optional)
 
-# 设计理念
+### Memory System
 
-**小巧易懂**：单一进程，少量源文件。无微服务、无消息队列、无复杂抽象层。让 Claude Code 引导您轻松上手
+AcademiClaw includes an optional semantic memory system:
 
-**隔离保障安全**：智能体运行在 Linux 容器（在 macOS 上是 Apple Container，或 Docker）中。它们只能看到被明确挂载的内容。即便通过 Bash 访问也十分安全，因为所有命令都在容器内执行，不会直接操作您的宿主机
+| Mode | Description | Cost |
+|------|-------------|------|
+| Off | SQLite only (exact match) | Free |
+| Mock | Test mode, no API required | Free |
+| Jina AI | Quality embeddings | 1M/month free |
+| OpenAI | Official embeddings | Pay-per-use |
 
-**代码量足够小**：没有繁杂的配置文件。想要不同的行为？直接修改代码。代码库足够小，这样做是安全的，保证每个代码文件都可以在个人控制之下
+Enable with `MEMORY_ENABLED=true` in `.env`.
 
-**国内支持**：原版的NanoClaw只提供了Telegram、whatsapp的支持，那么我们接入对于国内用户最为常用的即时通信软件：qq、微信、飞书和钉钉，使用更加方便
+## Usage
 
-**学术支持**：相较于在多个窗口之间相互切换，我们提供一个更加便捷的学术科研环境，连接你的zotero、obsidian和notion等常用的学术工具，理解拓展更多的学术科研工作
+Talk to your assistant with the trigger word (default: `@Andy`):
 
-**技能拓展**：贡献者不应该向代码库添加新功能（例如支持 Telegram）。相反，他们应该贡献像 `/add-telegram` 这样的 [Claude Code 技能](https://code.claude.com/docs/en/skills)，这些技能可以改造您的 fork。最终，您得到的是只做您需要事情的整洁代码
+```
+@Andy summarize the latest papers on semantic search from arXiv
+@Andy create a weekly summary of my research notes every Monday 9am
+@Andy search my conversation history for "vector database benchmarks"
+```
 
-**记忆强化**：相较于过去传统的自动记忆，独立于系统之外的记忆系统会强化不少内容。
+## Architecture
 
+```
+Channels → SQLite + LanceDB → Polling → Container (Claude Agent) → Response
+```
 
-# 施工中...... 代码完善中
+Key components:
+- `src/index.ts` - Main orchestrator
+- `src/memory/` - Semantic search system
+- `src/channels/` - Channel implementations
+- `src/container-runner.ts` - Container execution
+- `src/task-scheduler.ts` - Scheduled tasks
+
+### Memory System
+
+```
+      ┌────────────┐
+      │   Input    │
+      └─────┬──────┘
+            │
+   ┌────────┴─────────┐
+   ▼                  ▼
+ SQLite           LanceDB
+(Source DB)     (Semantic Index)
+   │                  │
+   └────────┬─────────┘
+            ▼
+      Hybrid Retriever
+```
+
+## Configuration
+
+Key environment variables:
+
+```bash
+# Memory System
+MEMORY_ENABLED=false                    # Enable semantic search
+EMBEDDING_API_KEY=                      # Jina AI or OpenAI key
+EMBEDDING_BASE_URL=https://api.jina.ai/v1
+EMBEDDING_MODEL=jina-embeddings-v3
+
+# Claude API
+ANTHROPIC_API_KEY=sk-ant-...
+CLAUDE_CODE_OAUTH_TOKEN=                # Alternative
+
+# Assistant Configuration
+ASSISTANT_NAME=Andy
+ASSISTANT_HAS_OWN_NUMBER=false
+```
+
+See `.env.example` for all options.
+
+## Requirements
+
+- macOS or Linux
+- Node.js 20+
+- [Claude Code](https://claude.ai/download)
+- [Docker](https://docker.com) or [Apple Container](https://github.com/apple/container)
+
+## Development
+
+```bash
+npm run dev          # Run with hot reload
+npm run build        # Compile TypeScript
+npm test            # Run tests
+```
+
+### Memory System Tests
+
+```bash
+# Unit tests
+npm test
+
+# Integration tests
+npx tsx scripts/test-memory-integration.ts
+
+# E2E tests (with mock embeddings)
+MEMORY_ENABLED=true MEMORY_USE_MOCK_EMBEDDINGS=true npx tsx scripts/test-memory-e2e.ts
+
+# Jina AI test (requires API key)
+JINA_API_KEY=your-key npx tsx scripts/test-jina-memory.ts
+```
+
+## Documentation
+
+- [Memory Architecture](docs/MEMORY_ARCHITECTURE.md) - Detailed system design
+- [Test Results](docs/MEMORY_TEST_RESULTS.md) - Test coverage
+- [Requirements](docs/REQUIREMENTS.md) - Architecture decisions
+- [NanoClaw SPEC](docs/SPEC.md) - Base system specification
+
+## Troubleshooting
+
+**Memory not working:**
+- Check `MEMORY_ENABLED=true` in `.env`
+- Verify API key is set
+- Check logs: `tail -f logs/academiclaw.log`
+
+**Container fails to start:**
+- Ensure Docker is running: `docker info`
+- Check container logs in `groups/main/logs/`
+
+**No response to messages:**
+- Verify trigger pattern (default: `@Andy`)
+- Check channel credentials in `.env`
+
+## Contributing
+
+AcademiClaw is a minimal fork of [NanoClaw](https://github.com/qwibitai/nanoclaw). Contributions should follow the same principles:
+
+1. **Skills over features** - Use `.claude/skills/` for add-ons
+2. **Keep it minimal** - Don't add bloat
+3. **Document changes** - Update relevant docs
+
+## License
+
+MIT (same as NanoClaw)
+
+## Acknowledgments
+
+Based on [NanoClaw](https://github.com/qwibitai/nanoclaw) by qwibitai.

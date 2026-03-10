@@ -234,7 +234,7 @@ function setupSystemd(
   }
 
   const unit = `[Unit]
-Description=academiclaw Personal Assistant
+Description=AcademiClaw Personal Assistant
 After=network.target
 
 [Service]

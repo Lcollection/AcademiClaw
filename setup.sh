@@ -1,18 +1,16 @@
 #!/bin/bash
-set -euo pipefail 
-
+set -euo pipefail
 # setup.sh — Bootstrap script for AcademiClaw
 # Handles Node.js/npm setup, then hands off to the Node.js setup modules.
 # This is the only bash script in the setup flow.
 
-PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)" 
-LOG_FILE="$PROJECT_ROOT/logs/setup.log"                      
+PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+LOG_FILE="$PROJECT_ROOT/logs/setup.log"
+mkdir -p "$PROJECT_ROOT/logs"
 
-mkdir -p "$PROJECT_ROOT/logs"                              
+log() { echo "[$(date '+%Y-%m-%d %H:%M:%S')] [bootstrap] $*" >> "$LOG_FILE"; }
 
-log() { echo "[$(date '+%Y-%m-%d %H:%M:%S')] [bootstrap] $*" >> "$LOG_FILE"; } 
 # --- Platform detection ---
-
 detect_platform() {
   local uname_s
   uname_s=$(uname -s)
@@ -38,7 +36,6 @@ detect_platform() {
 }
 
 # --- Node.js check ---
-
 check_node() {
   NODE_OK="false"
   NODE_VERSION="not_found"
@@ -59,7 +56,6 @@ check_node() {
 }
 
 # --- npm install ---
-
 install_deps() {
   DEPS_OK="false"
   NATIVE_OK="false"
@@ -98,10 +94,8 @@ install_deps() {
 }
 
 # --- Build tools check ---
-
 check_build_tools() {
   HAS_BUILD_TOOLS="false"
-
   if [ "$PLATFORM" = "macos" ]; then
     if xcode-select -p >/dev/null 2>&1; then
       HAS_BUILD_TOOLS="true"
@@ -111,14 +105,11 @@ check_build_tools() {
       HAS_BUILD_TOOLS="true"
     fi
   fi
-
   log "Build tools: $HAS_BUILD_TOOLS"
 }
 
 # --- Main ---
-
 log "=== Bootstrap started ==="
-
 detect_platform
 check_node
 install_deps
@@ -135,28 +126,26 @@ elif [ "$NATIVE_OK" = "false" ]; then
 fi
 
 cat <<EOF
-
-
-=== ACADEMICLAW SETUP: BOOTSTRAP ===
-PLATFORM: $PLATFORM
-IS_WSL: $IS_WSL
-IS_ROOT: $IS_ROOT
-NODE_VERSION: $NODE_VERSION
-NODE_OK: $NODE_OK
-NODE_PATH: ${NODE_PATH_FOUND:-not_found}
-DEPS_OK: $DEPS_OK
-NATIVE_OK: $NATIVE_OK
-HAS_BUILD_TOOLS: $HAS_BUILD_TOOLS
-STATUS: $STATUS
-LOG: logs/setup.log
-=== END ===
+### AC_SETUP_STATUS ###
+{
+  "platform": "$PLATFORM",
+  "is_wsl": $IS_WSL,
+  "is_root": $IS_ROOT,
+  "node_version": "$NODE_VERSION",
+  "node_path": "$NODE_PATH_FOUND",
+  "node_ok": $NODE_OK,
+  "deps_ok": $DEPS_OK,
+  "native_ok": $NATIVE_OK,
+  "build_tools": $HAS_BUILD_TOOLS,
+  "status": "$STATUS"
+}
+### AC_SETUP_STATUS ###
 EOF
 
-log "=== Bootstrap completed: $STATUS ==="
+log "=== Bootstrap complete (status=$STATUS) ==="
 
-if [ "$NODE_OK" = "false" ]; then
-  exit 2
-fi
-if [ "$DEPS_OK" = "false" ] || [ "$NATIVE_OK" = "false" ]; then
-  exit 1
+# Hand off to Node.js setup if everything is OK
+if [ "$STATUS" = "success" ]; then
+  log "Handing off to Node.js setup"
+  exec npx tsx "$PROJECT_ROOT/setup/index.ts" "\$@" || true
 fi

@@ -1,5 +1,5 @@
 /**
- * Cross-platform detection utilities for academiclaw setup.
+ * Cross-platform detection utilities for AcademiClaw setup.
  */
 import { execSync } from 'child_process';
 import fs from 'fs';
