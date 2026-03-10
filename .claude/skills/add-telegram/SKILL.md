@@ -5,13 +5,17 @@ description: Add Telegram as a channel. Can replace WhatsApp entirely or run alo
 
 # Add Telegram Channel
 
-This skill adds Telegram support to NanoClaw using the skills engine for deterministic code changes, then walks through interactive setup.
+This skill configures Telegram for AcademiClaw. The channel code is already included in this minimal installation. This skill handles authentication, registration, and configuration.
 
 ## Phase 1: Pre-flight
 
-### Check if already applied
+### Check if already configured
 
-Read `.nanoclaw/state.yaml`. If `telegram` is in `applied_skills`, skip to Phase 3 (Setup). The code changes are already in place.
+Check if `TELEGRAM_BOT_TOKEN` is set in `.env`:
+
+```bash
+grep -q "TELEGRAM_BOT_TOKEN=" .env 2>/dev/null && echo "Telegram configured" || echo "Not configured"
+```
 
 ### Ask the user
 
@@ -21,45 +25,33 @@ AskUserQuestion: Do you have a Telegram bot token, or do you need to create one?
 
 If they have one, collect it now. If not, we'll create one in Phase 3.
 
-## Phase 2: Apply Code Changes
+## Phase 2: Verify Code
 
-Run the skills engine to apply this skill's code package. The package files are in this directory alongside this SKILL.md.
-
-### Initialize skills system (if needed)
-
-If `.nanoclaw/` directory doesn't exist yet:
+Verify the Telegram channel code is present:
 
 ```bash
-npx tsx scripts/apply-skill.ts --init
+test -f src/channels/telegram.ts && echo "Telegram channel code present" || echo "ERROR: Telegram channel code missing"
 ```
 
-Or call `initSkillsSystem()` from `skills-engine/migrate.ts`.
-
-### Apply the skill
+### Verify dependencies
 
 ```bash
-npx tsx scripts/apply-skill.ts .claude/skills/add-telegram
+npm list grammy 2>/dev/null && echo "grammy installed" || echo "Installing grammy..."
 ```
 
-This deterministically:
-- Adds `src/channels/telegram.ts` (TelegramChannel class with self-registration via `registerChannel`)
-- Adds `src/channels/telegram.test.ts` (46 unit tests)
-- Appends `import './telegram.js'` to the channel barrel file `src/channels/index.ts`
-- Installs the `grammy` npm dependency
-- Updates `.env.example` with `TELEGRAM_BOT_TOKEN`
-- Records the application in `.nanoclaw/state.yaml`
-
-If the apply reports merge conflicts, read the intent file:
-- `modify/src/channels/index.ts.intent.md` — what changed and invariants
-
-### Validate code changes
+If not installed:
 
 ```bash
-npm test
+npm install grammy
+```
+
+### Validate build
+
+```bash
 npm run build
 ```
 
-All tests must pass (including the new telegram tests) and build must be clean before proceeding.
+Build must be clean before proceeding.
 
 ## Phase 3: Setup
 
@@ -72,7 +64,7 @@ If the user doesn't have a bot token, tell them:
 > 1. Open Telegram and search for `@BotFather`
 > 2. Send `/newbot` and follow prompts:
 >    - Bot name: Something friendly (e.g., "Andy Assistant")
->    - Bot username: Must end with "bot" (e.g., "andy_ai_bot")
+>    - Bot username: Must end in "bot" (e.g., "andy_ai_bot")
 > 3. Copy the bot token (looks like `123456:ABC-DEF1234ghIkl-zyx57W2v1u123ew11`)
 
 Wait for the user to provide the token.
@@ -111,8 +103,14 @@ Tell the user:
 
 ```bash
 npm run build
-launchctl kickstart -k gui/$(id -u)/com.nanoclaw  # macOS
-# Linux: systemctl --user restart nanoclaw
+```
+
+If service is running, restart it:
+
+```bash
+# macOS
+launchctl kickstart -k gui/$(id -u)/com.academiclaw
+# Linux: systemctl --user restart academiclaw
 ```
 
 ## Phase 4: Registration
@@ -127,33 +125,45 @@ Tell the user:
 
 Wait for the user to provide the chat ID (format: `tg:123456789` or `tg:-1001234567890`).
 
+### Configure the chat
+
+AskUserQuestion: What trigger word should activate the assistant?
+- **@Andy** - Default trigger
+- **@Claw** - Short and easy
+- **@Claude** - Match the AI name
+
+AskUserQuestion: What should the assistant call itself?
+- **Andy** - Default name
+- **Claw** - Short and easy
+- **Claude** - Match the AI name
+
+AskUserQuestion: Is this your main chat (responds to all messages) or a trigger-only chat?
+- **Main chat** - Responds to all messages without trigger
+- **Trigger-only** - Requires trigger word to respond
+
 ### Register the chat
 
-Use the IPC register flow or register directly. The chat ID, name, and folder name are needed.
-
-For a main chat (responds to all messages):
-
-```typescript
-registerGroup("tg:<chat-id>", {
-  name: "<chat-name>",
-  folder: "telegram_main",
-  trigger: `@${ASSISTANT_NAME}`,
-  added_at: new Date().toISOString(),
-  requiresTrigger: false,
-  isMain: true,
-});
+```bash
+npx tsx setup/index.ts --step register \
+  --jid "tg:<chat-id>" \
+  --name "<chat-name>" \
+  --trigger "@<trigger>" \
+  --folder "telegram_main" \
+  --channel telegram \
+  --assistant-name "<name>" \
+  --is-main \
+  --no-trigger-required  # Only for main chat
 ```
 
-For additional chats (trigger-only):
+For trigger-only chats:
 
-```typescript
-registerGroup("tg:<chat-id>", {
-  name: "<chat-name>",
-  folder: "telegram_<group-name>",
-  trigger: `@${ASSISTANT_NAME}`,
-  added_at: new Date().toISOString(),
-  requiresTrigger: true,
-});
+```bash
+npx tsx setup/index.ts --step register \
+  --jid "tg:<chat-id>" \
+  --name "<chat-name>" \
+  --trigger "@<trigger>" \
+  --folder "telegram_<name>" \
+  --channel telegram
 ```
 
 ## Phase 5: Verify
@@ -164,14 +174,14 @@ Tell the user:
 
 > Send a message to your registered Telegram chat:
 > - For main chat: Any message works
-> - For non-main: `@Andy hello` or @mention the bot
+> - For trigger-only: `@Andy hello` or @mention the bot
 >
 > The bot should respond within a few seconds.
 
 ### Check logs if needed
 
 ```bash
-tail -f logs/nanoclaw.log
+tail -f logs/academiclaw.log
 ```
 
 ## Troubleshooting
@@ -180,9 +190,9 @@ tail -f logs/nanoclaw.log
 
 Check:
 1. `TELEGRAM_BOT_TOKEN` is set in `.env` AND synced to `data/env/env`
-2. Chat is registered in SQLite (check with: `sqlite3 store/messages.db "SELECT * FROM registered_groups WHERE jid LIKE 'tg:%'"`)
-3. For non-main chats: message includes trigger pattern
-4. Service is running: `launchctl list | grep nanoclaw` (macOS) or `systemctl --user status nanoclaw` (Linux)
+2. Chat is registered in SQLite: `sqlite3 store/messages.db "SELECT * FROM registered_groups WHERE jid LIKE 'tg:%'"`
+3. For trigger-only chats: message includes trigger pattern
+4. Service is running: `launchctl list | grep academiclaw` (macOS) or `systemctl --user status academiclaw` (Linux)
 
 ### Bot only responds to @mentions in groups
 
@@ -194,38 +204,21 @@ Group Privacy is enabled (default). Fix:
 
 If `/chatid` doesn't work:
 - Verify token: `curl -s "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/getMe"`
-- Check bot is started: `tail -f logs/nanoclaw.log`
+- Check bot is started: `tail -f logs/academiclaw.log`
 
 ## After Setup
 
 If running `npm run dev` while the service is active:
+
 ```bash
 # macOS:
-launchctl unload ~/Library/LaunchAgents/com.nanoclaw.plist
+launchctl unload ~/Library/LaunchAgents/com.academiclaw.plist
 npm run dev
 # When done testing:
-launchctl load ~/Library/LaunchAgents/com.nanoclaw.plist
+launchctl load ~/Library/LaunchAgents/com.academiclaw.plist
+
 # Linux:
-# systemctl --user stop nanoclaw
+# systemctl --user stop academiclaw
 # npm run dev
-# systemctl --user start nanoclaw
+# systemctl --user start academiclaw
 ```
-
-## Agent Swarms (Teams)
-
-After completing the Telegram setup, use `AskUserQuestion`:
-
-AskUserQuestion: Would you like to add Agent Swarm support? Without it, Agent Teams still work — they just operate behind the scenes. With Swarm support, each subagent appears as a different bot in the Telegram group so you can see who's saying what and have interactive team sessions.
-
-If they say yes, invoke the `/add-telegram-swarm` skill.
-
-## Removal
-
-To remove Telegram integration:
-
-1. Delete `src/channels/telegram.ts` and `src/channels/telegram.test.ts`
-2. Remove `import './telegram.js'` from `src/channels/index.ts`
-3. Remove `TELEGRAM_BOT_TOKEN` from `.env`
-4. Remove Telegram registrations from SQLite: `sqlite3 store/messages.db "DELETE FROM registered_groups WHERE jid LIKE 'tg:%'"`
-5. Uninstall: `npm uninstall grammy`
-6. Rebuild: `npm run build && launchctl kickstart -k gui/$(id -u)/com.nanoclaw` (macOS) or `npm run build && systemctl --user restart nanoclaw` (Linux)

@@ -5,7 +5,7 @@ description: Add WhatsApp as a channel. Can replace other channels entirely or r
 
 # Add WhatsApp Channel
 
-This skill adds WhatsApp support to NanoClaw. It installs the WhatsApp channel code, dependencies, and guides through authentication, registration, and configuration.
+This skill configures WhatsApp for AcademiClaw. The channel code is already included in this minimal installation. This skill handles authentication, registration, and configuration.
 
 ## Phase 1: Pre-flight
 
@@ -44,22 +44,16 @@ AskUserQuestion: What is your phone number? (Include country code without +, e.g
 
 ## Phase 2: Verify Code
 
-Apply the skill to install the WhatsApp channel code and dependencies:
+Verify the WhatsApp channel code is present:
 
 ```bash
-npx tsx scripts/apply-skill.ts .claude/skills/add-whatsapp
-```
-
-Verify the code was placed correctly:
-
-```bash
-test -f src/channels/whatsapp.ts && echo "WhatsApp channel code present" || echo "ERROR: WhatsApp channel code missing — re-run skill apply"
+test -f src/channels/whatsapp.ts && echo "WhatsApp channel code present" || echo "ERROR: WhatsApp channel code missing"
 ```
 
 ### Verify dependencies
 
 ```bash
-node -e "require('@whiskeysockets/baileys')" 2>/dev/null && echo "Baileys installed" || echo "Installing Baileys..."
+npm list @whiskeysockets/baileys 2>/dev/null && echo "Baileys installed" || echo "Installing Baileys..."
 ```
 
 If not installed:
@@ -108,40 +102,28 @@ For QR code in terminal:
 npx tsx setup/index.ts --step whatsapp-auth -- --method qr-terminal
 ```
 
-Tell the user to run `npm run auth` in another terminal, then:
+Tell the user:
 
 > 1. Open WhatsApp > **Settings** > **Linked Devices** > **Link a Device**
 > 2. Scan the QR code displayed in the terminal
 
 For pairing code:
 
-Tell the user to have WhatsApp open on **Settings > Linked Devices > Link a Device**, ready to tap **"Link with phone number instead"** — the code expires in ~60 seconds and must be entered immediately.
-
-Run the auth process in the background and poll `store/pairing-code.txt` for the code:
-
 ```bash
-rm -f store/pairing-code.txt && npx tsx setup/index.ts --step whatsapp-auth -- --method pairing-code --phone <their-phone-number> > /tmp/wa-auth.log 2>&1 &
+npx tsx setup/index.ts --step whatsapp-auth -- --method pairing-code --phone <their-phone-number>
 ```
 
-Then immediately poll for the code (do NOT wait for the background command to finish):
+(Bash timeout: 150000ms). Display PAIRING_CODE from output.
 
-```bash
-for i in $(seq 1 20); do [ -f store/pairing-code.txt ] && cat store/pairing-code.txt && break; sleep 1; done
-```
+Tell the user:
 
-Display the code to the user the moment it appears. Tell them:
-
-> **Enter this code now** — it expires in ~60 seconds.
+> A pairing code will appear. **Enter it within 60 seconds** — codes expire quickly.
 >
 > 1. Open WhatsApp > **Settings** > **Linked Devices** > **Link a Device**
 > 2. Tap **Link with phone number instead**
 > 3. Enter the code immediately
-
-After the user enters the code, poll for authentication to complete:
-
-```bash
-for i in $(seq 1 60); do grep -q 'AUTH_STATUS: authenticated' /tmp/wa-auth.log 2>/dev/null && echo "authenticated" && break; grep -q 'AUTH_STATUS: failed' /tmp/wa-auth.log 2>/dev/null && echo "failed" && break; sleep 2; done
-```
+>
+> If the code expires, re-run the command — a new code will be generated.
 
 **If failed:** qr_timeout → re-run. logged_out → delete `store/auth/` and re-run. 515 → re-run. timeout → ask user, offer retry.
 
@@ -249,13 +231,13 @@ Restart the service:
 
 ```bash
 # macOS (launchd)
-launchctl kickstart -k gui/$(id -u)/com.nanoclaw
+launchctl kickstart -k gui/$(id -u)/com.academiclaw
 
 # Linux (systemd)
-systemctl --user restart nanoclaw
+systemctl --user restart academiclaw
 
 # Linux (nohup fallback)
-bash start-nanoclaw.sh
+bash start-academiclaw.sh
 ```
 
 ### Test the connection
@@ -271,7 +253,7 @@ Tell the user:
 ### Check logs if needed
 
 ```bash
-tail -f logs/nanoclaw.log
+tail -f logs/academiclaw.log
 ```
 
 ## Troubleshooting
@@ -281,7 +263,7 @@ tail -f logs/nanoclaw.log
 QR codes expire after ~60 seconds. Re-run the auth command:
 
 ```bash
-rm -rf store/auth/ && npx tsx src/whatsapp-auth.ts
+rm -rf store/auth/ && npx tsx setup/index.ts --step whatsapp-auth -- --method qr-browser
 ```
 
 ### Pairing code not working
@@ -289,19 +271,13 @@ rm -rf store/auth/ && npx tsx src/whatsapp-auth.ts
 Codes expire in ~60 seconds. To retry:
 
 ```bash
-rm -rf store/auth/ && npx tsx src/whatsapp-auth.ts --pairing-code --phone <phone>
+rm -rf store/auth/ && npx tsx setup/index.ts --step whatsapp-auth -- --method pairing-code --phone <phone>
 ```
 
 Enter the code **immediately** when it appears. Also ensure:
 1. Phone number includes country code without `+` (e.g., `1234567890`)
 2. Phone has internet access
 3. WhatsApp is updated to the latest version
-
-If pairing code keeps failing, switch to QR-browser auth instead:
-
-```bash
-rm -rf store/auth/ && npx tsx setup/index.ts --step whatsapp-auth -- --method qr-browser
-```
 
 ### "conflict" disconnection
 
@@ -316,19 +292,9 @@ pkill -f "node dist/index.js"
 
 Check:
 1. Auth credentials exist: `ls store/auth/creds.json`
-3. Chat is registered: `sqlite3 store/messages.db "SELECT * FROM registered_groups WHERE jid LIKE '%whatsapp%' OR jid LIKE '%@g.us' OR jid LIKE '%@s.whatsapp.net'"`
-4. Service is running: `launchctl list | grep nanoclaw` (macOS) or `systemctl --user status nanoclaw` (Linux)
-5. Logs: `tail -50 logs/nanoclaw.log`
-
-### Group names not showing
-
-Run group metadata sync:
-
-```bash
-npx tsx setup/index.ts --step groups
-```
-
-This fetches all group names from WhatsApp. Runs automatically every 24 hours.
+2. Chat is registered: `sqlite3 store/messages.db "SELECT * FROM registered_groups WHERE jid LIKE '%whatsapp%' OR jid LIKE '%@g.us' OR jid LIKE '%@s.whatsapp.net'"`
+3. Service is running: `launchctl list | grep academiclaw` (macOS) or `systemctl --user status academiclaw` (Linux)
+4. Logs: `tail -50 logs/academiclaw.log`
 
 ## After Setup
 
@@ -336,22 +302,13 @@ If running `npm run dev` while the service is active:
 
 ```bash
 # macOS:
-launchctl unload ~/Library/LaunchAgents/com.nanoclaw.plist
+launchctl unload ~/Library/LaunchAgents/com.academiclaw.plist
 npm run dev
 # When done testing:
-launchctl load ~/Library/LaunchAgents/com.nanoclaw.plist
+launchctl load ~/Library/LaunchAgents/com.academiclaw.plist
 
 # Linux:
-# systemctl --user stop nanoclaw
+# systemctl --user stop academiclaw
 # npm run dev
-# systemctl --user start nanoclaw
+# systemctl --user start academiclaw
 ```
-
-## Removal
-
-To remove WhatsApp integration:
-
-1. Delete auth credentials: `rm -rf store/auth/`
-2. Remove WhatsApp registrations: `sqlite3 store/messages.db "DELETE FROM registered_groups WHERE jid LIKE '%@g.us' OR jid LIKE '%@s.whatsapp.net'"`
-3. Sync env: `mkdir -p data/env && cp .env data/env/env`
-4. Rebuild and restart: `npm run build && launchctl kickstart -k gui/$(id -u)/com.nanoclaw` (macOS) or `npm run build && systemctl --user restart nanoclaw` (Linux)
