@@ -97,6 +97,7 @@ AskUserQuestion (multiSelect): Which messaging channels do you want to enable?
 - WhatsApp (authenticates via QR code or pairing code)
 - Telegram (authenticates via bot token from @BotFather)
 - Slack (authenticates via Slack app with Socket Mode)
+- Feishu (authenticates via app token from Feishu Developer Console)
 
 **Delegate to each selected channel's own skill.** Each channel skill handles its own code installation, authentication, registration, and JID resolution.
 
@@ -104,7 +105,7 @@ For each selected channel, invoke its skill:
 
 - **WhatsApp:** Invoke `/add-whatsapp`
 - **Telegram:** Invoke `/add-telegram`
-- **Slack:** Invoke `/add-slack`
+- **Feishu:** Invoke `/add-feishu`
 
 Each skill will:
 1. Check if channel code exists (already in this repo)
