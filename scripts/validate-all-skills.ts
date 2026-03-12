@@ -4,7 +4,7 @@
  *
  * For each skill:
  *   1. Reset working tree to clean state
- *   2. Initialize .nanoclaw/ (snapshot current source as base)
+ *   2. Initialize .academiclaw/ (snapshot current source as base)
  *   3. Apply skill via apply-skill.ts
  *   4. Run tsc --noEmit (typecheck)
  *   5. Run the skill's test command (from manifest.yaml)
@@ -64,12 +64,12 @@ function resetWorkingTree(): void {
   // but preserve node_modules to avoid costly reinstalls.
   execSync('git clean -fd --exclude=node_modules', { stdio: 'pipe' });
   // Clean skills-system state directory
-  if (fs.existsSync('.nanoclaw')) {
-    fs.rmSync('.nanoclaw', { recursive: true, force: true });
+  if (fs.existsSync('.academiclaw')) {
+    fs.rmSync('.academiclaw', { recursive: true, force: true });
   }
 }
 
-function initNanoclaw(): void {
+function initAcademiclaw(): void {
   execSync(
     'npx tsx -e "import { initNanoclawDir } from \'./skills-engine/index\'; initNanoclawDir();"',
     { stdio: 'pipe', timeout: 30_000 },
@@ -127,7 +127,7 @@ async function main(): Promise<void> {
 
     // Clean slate
     resetWorkingTree();
-    initNanoclaw();
+    initAcademiclaw();
 
     // Step 1: Apply skill
     try {
