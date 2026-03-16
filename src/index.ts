@@ -37,6 +37,7 @@ import {
   setSession,
   storeChatMetadata,
   storeMessage,
+  storeMessageWithMemory,
 } from './db.js';
 import { GroupQueue } from './group-queue.js';
 import { resolveGroupFolderPath } from './group-folder.js';
@@ -503,7 +504,17 @@ async function main(): Promise<void> {
           return;
         }
       }
-      storeMessage(msg);
+      // Store with memory sync (LanceDB + SQLite) for registered groups
+      const group = registeredGroups[chatJid];
+      if (group) {
+        // Fire-and-forget: async storage without blocking message processing
+        storeMessageWithMemory(msg, group.folder).catch((err) => {
+          logger.debug({ messageId: msg.id, err }, 'Memory sync skipped');
+        });
+      } else {
+        // Fallback to SQLite-only for unregistered chats
+        storeMessage(msg);
+      }
     },
     onChatMetadata: (
       chatJid: string,
