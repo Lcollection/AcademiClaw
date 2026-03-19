@@ -21,6 +21,26 @@
 - **容器隔离** - 每个群组独立安全沙箱执行
 - **学术集成** - 为科研工作流程优化
 
+## 学术技能
+
+AcademiClaw 内置以下科研专属技能：
+
+| 技能 | 描述 | 触发词 |
+|------|------|--------|
+| **zotero-local** | 本地 Zotero 数据库管理：增删改查、PDF 读取 | "zotero", "文献", "论文" |
+| **zotero-paper-reader** | 从 Zotero 读取并分析学术论文 | "read paper", "阅读论文" |
+| **deep-research** | 企业级深度研究：多源综合、引用追踪、验证 | "deep research", "深度研究" |
+| **data-analysis** | 数据分析：统计、可视化、报告生成 | "analyze data", "数据分析" |
+| **content-research-writer** | 内容写作：研究支持、引用添加、实时反馈 | "write", "写作" |
+
+使用示例：
+```
+@Andy 用 zotero-local 搜索关于机器学习的论文
+@Andy 对这份数据做深度分析
+@Andy 帮我写一篇关于 RAG 技术的综述
+@Andy 深度研究一下向量数据库的发展趋势
+```
+
 ## 快速开始
 
 ```bash

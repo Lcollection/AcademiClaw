@@ -22,6 +22,26 @@ Compared to NanoClaw, we've primarily modified communication with Feishu etc., m
 - **Container Isolation** - Secure sandboxed execution per group
 - **Academic Integration** - Optimized for research workflows
 
+## Academic Skills
+
+AcademiClaw includes built-in academic-specific skills:
+
+| Skill | Description | Triggers |
+|-------|-------------|----------|
+| **zotero-local** | Local Zotero database management: CRUD, PDF reading | "zotero", "literature", "paper" |
+| **zotero-paper-reader** | Read and analyze academic papers from Zotero | "read paper", "analyze paper" |
+| **deep-research** | Enterprise-grade research: multi-source synthesis, citation tracking | "deep research", "comprehensive analysis" |
+| **data-analysis** | Data analysis: statistics, visualization, reports | "analyze data", "data analysis" |
+| **content-research-writer** | Content writing: research-backed, citations, real-time feedback | "write", "content" |
+
+Usage examples:
+```
+@Andy use zotero-local to search papers on machine learning
+@Andy perform deep analysis on this dataset
+@Andy help me write a review on RAG technology
+@Andy deep research on vector database trends
+```
+
 ## Quick Start
 
 ```bash

@@ -23,6 +23,7 @@ AcademiClaw is a minimal, academic-focused fork of NanoClaw. Single Node.js proc
 
 ## Skills
 
+### Channel Skills (Setup)
 | Skill | When to Use |
 |-------|-------------|
 | `/setup` | First-time installation, authentication, service configuration |
@@ -30,6 +31,15 @@ AcademiClaw is a minimal, academic-focused fork of NanoClaw. Single Node.js proc
 | `/add-telegram` | Add Telegram channel |
 | `/add-slack` | Add Slack channel |
 | `/add-feishu` | Add Feishu/Lark channel (Chinese users) |
+
+### Academic Skills (Container)
+| Skill | Description | Triggers |
+|-------|-------------|----------|
+| `zotero-local` | Local Zotero database management | "zotero", "文献", "论文" |
+| `zotero-paper-reader` | Read and analyze papers from Zotero | "read paper", "阅读论文" |
+| `deep-research` | Multi-source research with citations | "deep research", "深度研究" |
+| `data-analysis` | Statistical analysis and visualization | "analyze data", "数据分析" |
+| `content-research-writer` | Research-backed content writing | "write", "写作" |
 
 ## Development
 
