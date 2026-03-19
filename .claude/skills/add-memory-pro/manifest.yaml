@@ -1,0 +1,29 @@
+skill: memory-pro
+version: 1.0.0
+description: "Advanced LanceDB memory system with auto-capture, auto-recall, categorization"
+core_version: 0.1.0
+adds:
+  - src/memory-pro/index.ts
+  - src/memory-pro/db.ts
+  - src/memory-pro/embeddings.ts
+  - src/memory-pro/capture.ts
+  - src/memory-pro/tools.ts
+  - src/memory-pro/config.ts
+  - src/memory-pro/types.ts
+modifies:
+  - src/index.ts
+structured:
+  npm_dependencies:
+    "@lancedb/lancedb": "^0.4.0"
+    openai: "^4.0.0"
+  env_additions:
+    - MEMORY_ENABLED
+    - MEMORY_AUTO_CAPTURE
+    - MEMORY_AUTO_RECALL
+    - MEMORY_EMBEDDING_API_KEY
+    - MEMORY_EMBEDDING_MODEL
+    - MEMORY_EMBEDDING_BASE_URL
+    - MEMORY_DB_PATH
+conflicts: []
+depends: []
+test: "npx vitest run src/memory-pro/"
