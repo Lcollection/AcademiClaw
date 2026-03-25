@@ -1,0 +1,79 @@
+{
+  "name": "Slidev Generator",
+  "version": "1.0.0",
+  "description": "Auto-generate Slidev presentations with AI",
+  "defaultTheme": "seriph",
+  "outputDir": "./presentations",
+  "features": {
+    "mermaid": true,
+    "katex": true,
+    "codeHighlight": true,
+    "animations": true,
+    "export": {
+      "pdf": true,
+      "png": true,
+      "spa": true
+    }
+  },
+  "templates": {
+    "technical": {
+      "sections": ["intro", "concepts", "implementation", "demo", "summary"],
+      "includeCode": true,
+      "includeDiagrams": true
+    },
+    "tutorial": {
+      "sections": ["overview", "basics", "advanced", "practice", "resources"],
+      "includeCode": true,
+      "includeDiagrams": false
+    },
+    "research": {
+      "sections": ["background", "methodology", "results", "discussion", "conclusion"],
+      "includeCode": false,
+      "includeDiagrams": true
+    },
+    "product": {
+      "sections": ["problem", "solution", "features", "demo", "pricing"],
+      "includeCode": false,
+      "includeDiagrams": true
+    }
+  },
+  "themes": {
+    "seriph": {
+      "name": "Seriph (Default)",
+      "colors": {
+        "primary": "#2b909f",
+        "background": "#fff"
+      }
+    },
+    "apple-basic": {
+      "name": "Apple Basic",
+      "colors": {
+        "primary": "#000",
+        "background": "#fff"
+      }
+    },
+    "dracula": {
+      "name": "Dracula",
+      "colors": {
+        "primary": "#bd93f9",
+        "background": "#282a36"
+      }
+    }
+  },
+  "export": {
+    "pdf": {
+      "format": "pdf",
+      "quality": "high",
+      "withClicks": false
+    },
+    "png": {
+      "format": "png",
+      "scale": 2,
+      "withClicks": true
+    },
+    "spa": {
+      "format": "spa",
+      "base": "/presentation/"
+    }
+  }
+}

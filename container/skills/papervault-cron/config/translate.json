@@ -1,0 +1,7 @@
+{
+  "provider": "kimi",
+  "api_key": "sk-EFrZFiskCLfG0CGPbZv33GY74EbiNgp9fzG3v93XVdBA6H5V",
+  "base_url": "https://api.moonshot.cn/v1",
+  "model": "moonshot-v1-8k",
+  "enabled": true
+}

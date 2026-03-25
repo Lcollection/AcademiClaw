@@ -1,0 +1,31 @@
+{
+  "default_repo": "",
+  "default_editor": "code --wait",
+  "git_protocol": "https",
+  "browser": "",
+  "aliases": {
+    "co": "pr checkout",
+    "pc": "pr create",
+    "pv": "pr view",
+    "ic": "issue create",
+    "iv": "issue view",
+    "wc": "workflow run",
+    "rc": "release create"
+  },
+  "templates": {
+    "issue": {
+      "default_labels": ["needs-triage"],
+      "default_assignee": "@me"
+    },
+    "pr": {
+      "default_base": "main",
+      "default_draft": false,
+      "auto_fill": true
+    }
+  },
+  "automation": {
+    "auto_pr_on_push": false,
+    "auto_link_issues": true,
+    "auto_assign_reviewers": false
+  }
+}

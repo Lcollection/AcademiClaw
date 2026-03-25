@@ -24,22 +24,51 @@ Compared to NanoClaw, we've primarily modified communication with Feishu etc., m
 
 ## Academic Skills
 
-AcademiClaw includes built-in academic-specific skills:
+AcademiClaw includes 16 built-in academic-specific skills:
+
+### 📚 Paper Management
 
 | Skill | Description | Triggers |
 |-------|-------------|----------|
 | **zotero-local** | Local Zotero database management: CRUD, PDF reading | "zotero", "literature", "paper" |
 | **zotero-paper-reader** | Read and analyze academic papers from Zotero | "read paper", "analyze paper" |
-| **deep-research** | Enterprise-grade research: multi-source synthesis, citation tracking | "deep research", "comprehensive analysis" |
-| **data-analysis** | Data analysis: statistics, visualization, reports | "analyze data", "data analysis" |
-| **content-research-writer** | Content writing: research-backed, citations, real-time feedback | "write", "content" |
+| **arxiv-fetcher** | Fetch papers from arXiv | "arxiv", "fetch papers" |
+| **paper-fetcher** | arXiv auto-search, translation, Zotero import | "search papers", "检索论文" |
+| **paper-summarizer** | Generate daily/weekly/monthly reports | "daily summary", "学习总结" |
+| **pdf-reader** | Deep PDF reading and analysis | "read PDF", "阅读PDF" |
+| **papervault-cron** | Complete paper automation workflow | "paper workflow" |
 
-Usage examples:
+### 🧠 Learning & Research
+
+| Skill | Description | Triggers |
+|-------|-------------|----------|
+| **learning-reflector** | Deep reflection, blind spot discovery | "reflect learning", "反思学习" |
+| **deep-research** | Enterprise-grade research: multi-source synthesis | "deep research", "comprehensive analysis" |
+| **content-research-writer** | Content writing: research-backed, citations | "write", "content" |
+| **data-analysis** | Data analysis: statistics, visualization | "analyze data", "data analysis" |
+
+### 🛠️ Productivity Tools
+
+| Skill | Description | Triggers |
+|-------|-------------|----------|
+| **token-usage-tracker** | Track API token consumption | "token usage", "API消耗" |
+| **diagram-generator** | Generate flowcharts, sequence diagrams | "draw flowchart", "画流程图" |
+| **slidev-generator** | Auto-generate Slidev presentations | "create presentation", "创建演示" |
+| **github-cli** | GitHub automation (repos, issues, PRs) | "create repo", "创建仓库" |
+| **agent-browser** | Browser automation for research | "browse", "search web" |
+
+### Usage Examples
+
 ```
 @Andy use zotero-local to search papers on machine learning
-@Andy perform deep analysis on this dataset
-@Andy help me write a review on RAG technology
-@Andy deep research on vector database trends
+@Andy search today's papers on transformer    # paper-fetcher
+@Andy generate weekly learning summary        # paper-summarizer
+@Andy reflect on my learning blind spots      # learning-reflector
+@Andy read this PDF paper                     # pdf-reader
+@Andy draw a microservice architecture diagram    # diagram-generator
+@Andy create a presentation on RAG            # slidev-generator
+@Andy create a new GitHub repository          # github-cli
+@Andy check my token usage today              # token-usage-tracker
 ```
 
 ## Quick Start

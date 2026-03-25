@@ -1,0 +1,8 @@
+{
+  "provider": "kimi",
+  "api_key": "YOUR_KIMI_API_KEY_HERE",
+  "base_url": "https://api.moonshot.cn/v1",
+  "model": "moonshot-v1-8k",
+  "enabled": false,
+  "_comment": "填入 API key 并将 enabled 改为 true 以启用翻译功能"
+}
